@@ -1,6 +1,7 @@
 package com.issue.issuefeedbacksystem.dao;
 
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
+import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
 import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
 import com.issue.issuefeedbacksystem.entity.User;
 import org.apache.ibatis.annotations.*;
@@ -26,12 +27,12 @@ public interface UserDAO {
     @Select("SELECT count(u.user_id) " +
             "FROM user u " +
             "LEFT JOIN role r ON u.role_id = r.role_id " +
-            "WHERE u.role_id IS NULL")
+            "WHERE u.role_id IS NULL or r.is_delete = 1")
     Integer countPendingUserSum();
     @Select("SELECT u.user_id, u.username, r.role_name AS role_name, u.phone  " +
             "FROM user u " +
             "LEFT JOIN role r ON u.role_id = r.role_id " +
-            "WHERE u.role_id IS NULL limit #{size} offset #{offset}")
+            "WHERE u.role_id IS NULL or r.is_delete = 1 limit #{size} offset #{offset}")
     @Results({
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
@@ -40,4 +41,11 @@ public interface UserDAO {
     })
     List<PendingUserBO> selectPendingUserList(@Param("size") Integer size,
                                               @Param("offset") Integer offset);
+
+    @Update("update user set role_id = #{role_id} where user_id = #{user_id}")
+    void updateUserRoles(@Param("user_id") Integer userId, @Param("role_id") Integer roleId);
+
+
+
+
 }

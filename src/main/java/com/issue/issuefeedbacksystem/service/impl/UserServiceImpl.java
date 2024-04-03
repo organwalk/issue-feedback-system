@@ -2,6 +2,7 @@ package com.issue.issuefeedbacksystem.service.impl;
 
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
 import com.issue.issuefeedbacksystem.dao.UserDAO;
+import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
 import com.issue.issuefeedbacksystem.dto.UserLoginDTO;
 import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
 import com.issue.issuefeedbacksystem.entity.User;
@@ -48,5 +49,13 @@ public class UserServiceImpl implements UserService {
         if (total == 0) return PagedResult.fail("待处理用户列表为空");
         List<PendingUserBO> list = userDAO.selectPendingUserList(size, offset);
         return PagedResult.success("已成功获取待处理用户列表", total, list);
+    }
+
+    @Override
+    public MsgResult setUserRole(List<PendingUserRoleDTO> pendingUserRoleDTOList) {
+        for (PendingUserRoleDTO p : pendingUserRoleDTOList){
+            userDAO.updateUserRoles(p.getUserId(), p.getRoleId());
+        }
+        return MsgResult.success("角色分配成功");
     }
 }
