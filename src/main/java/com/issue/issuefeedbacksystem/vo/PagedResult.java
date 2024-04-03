@@ -22,12 +22,10 @@ public class PagedResult <T>{
                 .build();
     }
 
-    public static <T>PagedResult<T> fail(String msg, int total, List<T> data){
+    public static <T>PagedResult<T> fail(String msg){
         return PagedResult.<T>builder()
                 .code(Code.FAIL)
                 .msg(msg)
-                .total(total)
-                .data(data)
                 .build();
     }
 }
