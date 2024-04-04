@@ -1,10 +1,7 @@
 package com.issue.issuefeedbacksystem.controller;
 
 import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
-import com.issue.issuefeedbacksystem.dto.UserLoginDTO;
-import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
 import com.issue.issuefeedbacksystem.service.UserService;
-import com.issue.issuefeedbacksystem.vo.CommonResult;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
 import com.issue.issuefeedbacksystem.vo.PagedResult;
 import jakarta.validation.Valid;
@@ -16,21 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/system")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
     private final UserService userService;
-
-    @PostMapping("/user")
-    public MsgResult register(@Validated @RequestBody UserRegistrationDTO userRegistrationDTO) {
-        return userService.register(userRegistrationDTO);
-    }
-
-    @PostMapping("/auth")
-    public CommonResult<?> login(@Validated @RequestBody UserLoginDTO userLoginDTO) {
-        return userService.login(userLoginDTO);
-    }
 
     @GetMapping("/pending-users")
     public PagedResult<?> getPendingUserList(@Valid
@@ -46,6 +33,4 @@ public class UserController {
     public MsgResult setUserRole(@Validated @RequestBody List<PendingUserRoleDTO> pendingUserRoleDTOList){
         return userService.setUserRole(pendingUserRoleDTOList);
     }
-
-
 }

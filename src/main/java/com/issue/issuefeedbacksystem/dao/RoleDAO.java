@@ -7,13 +7,13 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface SystemDAO {
+public interface RoleDAO {
     @Select("select role_id, role_name from role where is_delete != 1")
-    @Results({
+    @Results(id = "role", value = {
             @Result(property = "roleId", column = "role_id"),
             @Result(property = "roleName", column = "role_name")
     })
-    List<RoleBO> selectRoleList();
+    List<RoleBO> selectRoleListNotDelete();
 
     @Insert("insert into role(role_name) values (#{roleName})")
     int insertRoleName(String roleName);
@@ -28,4 +28,8 @@ public interface SystemDAO {
             + "</foreach>"
             + "</script>"})
     int batchDeleteRole(@Param("ids") List<Integer> ids);
+
+    @Select("select role_id, role_name from role where role_id = #{roleId}")
+    @ResultMap(value = "role")
+    Role selectRoleById(Integer roleId);
 }

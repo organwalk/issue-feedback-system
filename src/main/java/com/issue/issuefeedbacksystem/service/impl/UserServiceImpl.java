@@ -1,6 +1,7 @@
 package com.issue.issuefeedbacksystem.service.impl;
 
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
+import com.issue.issuefeedbacksystem.bo.UserBO;
 import com.issue.issuefeedbacksystem.dao.UserDAO;
 import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
 import com.issue.issuefeedbacksystem.dto.UserLoginDTO;
@@ -23,25 +24,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
-    private final JwtUtil jwtUtil;
-    @Override
-    public MsgResult register(UserRegistrationDTO userRegistrationDTO) {
-        int row = userDAO.insertUser(userRegistrationDTO);
-        return row > 0 ? MsgResult.success("注册成功") : MsgResult.fail("注册失败");
-    }
-
-    @Override
-    public CommonResult<?> login(UserLoginDTO userLoginDTO) {
-        User user = userDAO.selectUserByPhone(userLoginDTO.getPhone());
-        if (Objects.isNull(user.getRoleId())){
-            return CommonResult.fail("当前账号尚未分配角色，请等待管理员处理");
-        }
-        if (Objects.equals(userLoginDTO.getPassword(), user.getPasswordHash())){
-            String token = jwtUtil.generateToken(user.getUserId(), user.getRoleId());
-            return CommonResult.success("登录成功", token);
-        }
-        return CommonResult.fail("手机号码或密码错误");
-    }
 
     @Override
     public PagedResult<?> getPendingUserList(Integer size, Integer offset) {
@@ -57,5 +39,15 @@ public class UserServiceImpl implements UserService {
             userDAO.updateUserRoles(p.getUserId(), p.getRoleId());
         }
         return MsgResult.success("角色分配成功");
+    }
+
+    @Override
+    public PagedResult<?> getUserList(Integer size, Integer offset) {
+        Integer total = userDAO.countUserSum();
+        if (total == 0) return PagedResult.fail("用户列表为空");
+        List<UserBO> userList = userDAO.selectUserList(size, offset);
+        return !userList.isEmpty()
+                ? PagedResult.success("成功获取用户列表", total, userList)
+                : PagedResult.fail("当前记录后结果为空");
     }
 }

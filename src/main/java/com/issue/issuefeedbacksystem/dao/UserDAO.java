@@ -1,8 +1,11 @@
 package com.issue.issuefeedbacksystem.dao;
 
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
+import com.issue.issuefeedbacksystem.bo.UserBO;
 import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
 import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
+import com.issue.issuefeedbacksystem.entity.Dept;
+import com.issue.issuefeedbacksystem.entity.Role;
 import com.issue.issuefeedbacksystem.entity.User;
 import org.apache.ibatis.annotations.*;
 
@@ -14,7 +17,7 @@ public interface UserDAO {
     int insertUser(@Param("user") UserRegistrationDTO userRegistrationDTO);
 
     @Select("select user_id, username, password_hash, role_id, dept_id, phone from user where phone = #{phone}")
-    @Results(id = "UserAllInfo", value = {
+    @Results({
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
             @Result(property = "passwordHash", column = "password_hash"),
@@ -46,6 +49,19 @@ public interface UserDAO {
     void updateUserRoles(@Param("user_id") Integer userId, @Param("role_id") Integer roleId);
 
 
+    @Select("select count(user_id) from user")
+    Integer countUserSum();
 
+    @Select("select user_id, username, role_id, dept_id, phone from user limit #{size} offset #{offset}")
+    @Results({
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "username", column = "username"),
+            @Result(property = "role", column = "role_id", javaType = Role.class,
+                    one = @One(select = "com.issue.issuefeedbacksystem.dao.RoleDAO.selectRoleById")),
+            @Result(property = "dept", column = "dept_id", javaType = Dept.class,
+                    one = @One(select = "com.issue.issuefeedbacksystem.dao.DeptDAO.selectDeptById")),
+            @Result(property = "phone", column = "phone")
+    })
+    List<UserBO> selectUserList(@Param("size") Integer size, @Param("offset") Integer offset);
 
 }

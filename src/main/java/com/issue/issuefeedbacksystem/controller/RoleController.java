@@ -1,6 +1,6 @@
 package com.issue.issuefeedbacksystem.controller;
 
-import com.issue.issuefeedbacksystem.service.SystemService;
+import com.issue.issuefeedbacksystem.service.RoleService;
 import com.issue.issuefeedbacksystem.vo.CommonResult;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
 import jakarta.validation.Valid;
@@ -16,18 +16,18 @@ import java.util.List;
 @RequestMapping("/api/system")
 @RequiredArgsConstructor
 @Validated
-public class SystemController {
-    private final SystemService systemService;
+public class RoleController {
+    private final RoleService roleService;
 
     @GetMapping("/roles")
     public CommonResult<?> getRoleList() {
-        return systemService.getRoleList();
+        return roleService.getRoleList();
     }
 
     @PostMapping("/role")
     public MsgResult addRole(@Valid @NotBlank(message = "roleName不能为空")
                              @RequestParam String roleName) {
-        return systemService.addRole(roleName);
+        return roleService.addRole(roleName);
     }
 
     @PutMapping("/role")
@@ -35,11 +35,11 @@ public class SystemController {
                                 @RequestParam String roleName,
                                 @Min(value = 1, message = "roleId不能小于1")
                                 @RequestParam Integer roleId){
-        return systemService.updateRole(roleName, roleId);
+        return roleService.updateRole(roleName, roleId);
     }
 
     @DeleteMapping("/role")
     public MsgResult deleteRole(@RequestParam List<Integer> roleIdList){
-        return systemService.deleteRole(roleIdList);
+        return roleService.deleteRole(roleIdList);
     }
 }

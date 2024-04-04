@@ -11,8 +11,8 @@ import java.util.List;
 
 
 public interface UserService {
-    MsgResult register(UserRegistrationDTO userRegistrationDTO);
-    CommonResult<?> login(UserLoginDTO userLoginDTO);
+
     PagedResult<?> getPendingUserList(Integer size, Integer offset);
     MsgResult setUserRole(List<PendingUserRoleDTO> pendingUserRoleDTOList);
+    PagedResult<?> getUserList(Integer size, Integer offset);
 }

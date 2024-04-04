@@ -5,7 +5,7 @@ import com.issue.issuefeedbacksystem.vo.MsgResult;
 
 import java.util.List;
 
-public interface SystemService {
+public interface RoleService {
     CommonResult<?> getRoleList();
     MsgResult addRole(String roleName);
     MsgResult updateRole(String roleName,Integer roleId);
