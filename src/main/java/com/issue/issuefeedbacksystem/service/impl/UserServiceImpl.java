@@ -1,9 +1,9 @@
 package com.issue.issuefeedbacksystem.service.impl;
 
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
+import com.issue.issuefeedbacksystem.bo.UserBO;
 import com.issue.issuefeedbacksystem.dao.UserDAO;
-import com.issue.issuefeedbacksystem.dto.UserLoginDTO;
-import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
+import com.issue.issuefeedbacksystem.dto.*;
 import com.issue.issuefeedbacksystem.entity.User;
 import com.issue.issuefeedbacksystem.service.UserService;
 import com.issue.issuefeedbacksystem.utils.JwtUtil;
@@ -22,31 +22,44 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
-    private final JwtUtil jwtUtil;
-    @Override
-    public MsgResult register(UserRegistrationDTO userRegistrationDTO) {
-        int row = userDAO.insertUser(userRegistrationDTO);
-        return row > 0 ? MsgResult.success("注册成功") : MsgResult.fail("注册失败");
-    }
-
-    @Override
-    public CommonResult<?> login(UserLoginDTO userLoginDTO) {
-        User user = userDAO.selectUserByPhone(userLoginDTO.getPhone());
-        if (Objects.isNull(user.getRoleId())){
-            return CommonResult.fail("当前账号尚未分配角色，请等待管理员处理");
-        }
-        if (Objects.equals(userLoginDTO.getPassword(), user.getPasswordHash())){
-            String token = jwtUtil.generateToken(user.getUserId(), user.getRoleId());
-            return CommonResult.success("登录成功", token);
-        }
-        return CommonResult.fail("手机号码或密码错误");
-    }
 
     @Override
     public PagedResult<?> getPendingUserList(Integer size, Integer offset) {
         Integer total = userDAO.countPendingUserSum();
-        if (total == 0) return PagedResult.fail("待处理用户列表为空");
+        if (total == 0) return PagedResult.success("待处理用户列表为空", 0,null);
         List<PendingUserBO> list = userDAO.selectPendingUserList(size, offset);
         return PagedResult.success("已成功获取待处理用户列表", total, list);
+    }
+
+    @Override
+    public MsgResult setUserRole(UserBatchUpdateRoleDTO userBatchUpdateRoleDTO) {
+        int row = userDAO.batchUpdateUserRole(userBatchUpdateRoleDTO);
+        int invalid = userBatchUpdateRoleDTO.getUserIdList().size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "角色分配成功" : "分配成功, 无效分配" + invalid +"人")
+                : MsgResult.fail("分配失败, 无效分配" + invalid +"人");
+    }
+
+    @Override
+    public PagedResult<?> getUserList(Integer size, Integer offset) {
+        Integer total = userDAO.countUserSum();
+        if (total == 0) return PagedResult.fail("用户列表为空");
+        List<UserBO> userList = userDAO.selectUserList(size, offset);
+        return !userList.isEmpty()
+                ? PagedResult.success("成功获取用户列表", total, userList)
+                : PagedResult.fail("当前记录后结果为空");
+    }
+
+    @Override
+    public MsgResult updateUser(UserUpdateDTO userUpdateDTO) {
+        int row = userDAO.updateUser(userUpdateDTO);
+        return row > 0 ? MsgResult.success("修改成功") : MsgResult.fail("修改失败");
+    }
+
+    @Override
+    public MsgResult batchUpdateUserDept(UserBatchUpdateDeptDTO userBatchUpdateDeptDTO) {
+        int row = userDAO.batchUpdateUserDept(userBatchUpdateDeptDTO);
+        int invalid = userBatchUpdateDeptDTO.getUserIdList().size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "分配成功" : "分配成功, 无效分配" + invalid +"人")
+                : MsgResult.fail("分配失败, 无效分配" + invalid +"人");
     }
 }

@@ -28,4 +28,3 @@ allow-api-list:
     - /api/school
   admin:
     - /api/system
-    - /api/pending-users
