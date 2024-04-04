@@ -62,11 +62,12 @@ public interface UserDAO {
     int batchUpdateUserRole(@Param("data") UserBatchUpdateRoleDTO userBatchUpdateRoleDTO);
 
 
-    @Select("select count(user_id) from user")
+    @Select("select count(user_id) from user where is_delete = 0")
     Integer countUserSum();
 
-    @Select("select user_id, username, role_id, dept_id, phone from user order by user_id desc limit #{size} offset #{offset} ")
-    @Results({
+    @Select("select user_id, username, role_id, dept_id, phone from user where is_delete = 0 " +
+            "order by user_id desc limit #{size} offset #{offset} ")
+    @Results(id = "userList", value = {
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
             @Result(property = "role", column = "role_id", javaType = RoleBO.class,
@@ -110,4 +111,44 @@ public interface UserDAO {
             "</script>"
     })
     int batchUpdateUserDept(@Param("data")UserBatchUpdateDeptDTO userBatchUpdateDeptDTO);
+
+    @Update({
+            "<script>",
+            "update user set is_delete = 1, username = '已删除' where user_id in ",
+            "<foreach collection='data' item='uid' open='(' close=')' separator=','>",
+            "#{uid}",
+            "</foreach>",
+            "</script>"
+    })
+    int deleteUserByUidList(@Param("data")List<Integer> uidList);
+
+    @Select("select count(user_id) from user where is_delete = 0 and role_id = #{roleId}")
+    Integer countUserSumByRole(Integer roleId);
+
+    @Select("select user_id, username, role_id, dept_id, phone " +
+            "from user where role_id = #{roleId} and is_delete = 0 order by user_id desc limit #{size} offset #{offset} ")
+    @ResultMap(value = "userList")
+    List<UserBO> selectUserListByRole(@Param("size") Integer size,
+                                      @Param("offset") Integer offset,
+                                      @Param("roleId") Integer roleId);
+
+    @Select("select count(user_id) from user where is_delete = 0 and dept_id = #{deptId}")
+    Integer countUserSumByDept(Integer deptId);
+
+    @Select("select user_id, username, role_id, dept_id, phone " +
+            "from user where dept_id = #{deptId} and is_delete = 0 order by user_id desc limit #{size} offset #{offset} ")
+    @ResultMap(value = "userList")
+    List<UserBO> selectUserListByDept(@Param("size") Integer size,
+                                      @Param("offset") Integer offset,
+                                      @Param("deptId") Integer deptId);
+
+    @Select("select count(user_id) from user where is_delete = 0 and phone like CONCAT('%', #{phone}, '%')")
+    Integer countUserSumByPhone(String phone);
+
+    @Select("select user_id, username, role_id, dept_id, phone " +
+            "from user where phone like CONCAT('%', #{phone}, '%') and is_delete = 0 order by user_id desc limit #{size} offset #{offset} ")
+    @ResultMap(value = "userList")
+    List<UserBO> selectUserListByPhone(@Param("size") Integer size,
+                                      @Param("offset") Integer offset,
+                                      @Param("phone") String phone);
 }

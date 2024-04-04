@@ -6,8 +6,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserBatchUpdateDeptDTO {
-    private List<Integer> userIdList;
+public class IssueCategoryBatchUpdateDeptDTO {
+    private List<Integer> typeIdList;
     @Min(value = 1, message = "deptId不能小于1")
     private Integer deptId;
 }
