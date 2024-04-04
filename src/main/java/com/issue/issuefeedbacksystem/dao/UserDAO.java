@@ -1,9 +1,10 @@
 package com.issue.issuefeedbacksystem.dao;
 
+import com.issue.issuefeedbacksystem.bo.DeptBO;
 import com.issue.issuefeedbacksystem.bo.PendingUserBO;
+import com.issue.issuefeedbacksystem.bo.RoleBO;
 import com.issue.issuefeedbacksystem.bo.UserBO;
-import com.issue.issuefeedbacksystem.dto.PendingUserRoleDTO;
-import com.issue.issuefeedbacksystem.dto.UserRegistrationDTO;
+import com.issue.issuefeedbacksystem.dto.*;
 import com.issue.issuefeedbacksystem.entity.Dept;
 import com.issue.issuefeedbacksystem.entity.Role;
 import com.issue.issuefeedbacksystem.entity.User;
@@ -45,23 +46,82 @@ public interface UserDAO {
     List<PendingUserBO> selectPendingUserList(@Param("size") Integer size,
                                               @Param("offset") Integer offset);
 
-    @Update("update user set role_id = #{role_id} where user_id = #{user_id}")
-    void updateUserRoles(@Param("user_id") Integer userId, @Param("role_id") Integer roleId);
+    @Select({
+            "<script>",
+            "select user_id from user where is_delete = 0 and ",
+            "user_id in ",
+            "<foreach collection='data' item='uid' open='(' close=')' separator=','>",
+            "#{uid}",
+            "</foreach>",
+            "</script>"
+    })
+    List<Integer> selectEffectUidByUidList(@Param("data")List<Integer> uidList);
+    @Update({
+            "<script>",
+            "update user set role_id = #{data.roleId} where user_id in ",
+            "<foreach collection='data.userIdList' item='uid' open='(' close=')' separator=','>",
+            "#{uid}",
+            "</foreach>",
+            "</script>"
+    })
+    int batchUpdateUserRole(@Param("data") UserBatchUpdateRoleDTO userBatchUpdateRoleDTO);
 
 
     @Select("select count(user_id) from user")
     Integer countUserSum();
 
-    @Select("select user_id, username, role_id, dept_id, phone from user limit #{size} offset #{offset}")
+    @Select("select user_id, username, role_id, dept_id, phone from user order by user_id desc limit #{size} offset #{offset} ")
     @Results({
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
-            @Result(property = "role", column = "role_id", javaType = Role.class,
+            @Result(property = "role", column = "role_id", javaType = RoleBO.class,
                     one = @One(select = "com.issue.issuefeedbacksystem.dao.RoleDAO.selectRoleById")),
-            @Result(property = "dept", column = "dept_id", javaType = Dept.class,
+            @Result(property = "dept", column = "dept_id", javaType = DeptBO.class,
                     one = @One(select = "com.issue.issuefeedbacksystem.dao.DeptDAO.selectDeptById")),
             @Result(property = "phone", column = "phone")
     })
     List<UserBO> selectUserList(@Param("size") Integer size, @Param("offset") Integer offset);
 
+    @Update({
+            "<script>",
+            "update user <set>",
+            "<if test = 'user.username != null' >",
+            "username = #{user.username},",
+            "</if>",
+            "<if test = 'user.passwordHash != null' >",
+            "password_hash = #{user.passwordHash},",
+            "</if>",
+            "<if test = 'user.roleId != null' >",
+            "role_id = #{user.roleId},",
+            "</if>",
+            "<if test = 'user.deptId != null' >",
+            "dept_id = #{user.deptId},",
+            "</if>",
+            "<if test = 'user.phone != null' >",
+            "phone = #{user.phone} ",
+            "</if>",
+            "</set> where user_id = #{user.userId}",
+            "</script>"
+    })
+    int updateUser(@Param("user") UserUpdateDTO userUpdateDTO);
+
+    @Select({
+            "<script>",
+            "select user_id from user where is_delete = 0 and (role_id = 2 or role_id = 3) and ",
+            "user_id in ",
+            "<foreach collection='data' item='uid' open='(' close=')' separator=','>",
+            "#{uid}",
+            "</foreach>",
+            "</script>"
+    })
+    List<Integer> selectTeaAndDeptLeaderListByUidList(@Param("data")List<Integer> uidList);
+    @Update({
+            "<script>",
+            "update user set dept_id = #{data.deptId} where user_id in ",
+            "<foreach collection='data.userIdList' item='uid' open='(' close=')' separator=','>",
+            "#{uid}",
+            "</foreach>",
+            "</script>"
+    })
+    int batchUpdateUserDept(@Param("data")UserBatchUpdateDeptDTO userBatchUpdateDeptDTO);
 }

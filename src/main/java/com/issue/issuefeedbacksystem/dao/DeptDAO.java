@@ -1,5 +1,6 @@
 package com.issue.issuefeedbacksystem.dao;
 
+import com.issue.issuefeedbacksystem.bo.DeptBO;
 import com.issue.issuefeedbacksystem.entity.Dept;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Result;
@@ -13,5 +14,5 @@ public interface DeptDAO {
             @Result(property = "deptId", column = "dept_id"),
             @Result(property = "deptName", column = "dept_name")
     })
-    Dept selectDeptById(Integer deptId);
+    DeptBO selectDeptById(Integer deptId);
 }

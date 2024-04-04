@@ -31,5 +31,5 @@ public interface RoleDAO {
 
     @Select("select role_id, role_name from role where role_id = #{roleId}")
     @ResultMap(value = "role")
-    Role selectRoleById(Integer roleId);
+    RoleBO selectRoleById(Integer roleId);
 }

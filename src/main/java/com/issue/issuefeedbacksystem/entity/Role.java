@@ -6,5 +6,5 @@ import lombok.Data;
 public class Role {
     private Integer roleId;
     private String roleName;
-    private int is_delete;
+    private int isDelete;
 }
