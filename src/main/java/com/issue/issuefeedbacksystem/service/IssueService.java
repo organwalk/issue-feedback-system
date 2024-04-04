@@ -5,6 +5,7 @@ import com.issue.issuefeedbacksystem.dto.IssueDTO;
 import com.issue.issuefeedbacksystem.dto.ReplyDTO;
 import com.issue.issuefeedbacksystem.vo.CommonResult;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
+import com.issue.issuefeedbacksystem.vo.PagedResult;
 import org.apache.ibatis.annotations.Insert;
 
 public interface IssueService {
@@ -14,4 +15,6 @@ public interface IssueService {
     MsgResult evaluate(EvaluationDTO evaluationDTO);
 
     CommonResult<?> getIssueDetails(Integer issueId);
+
+    PagedResult<?> listByStatus(Integer issueStatus, Integer size, Integer offset);
 }
