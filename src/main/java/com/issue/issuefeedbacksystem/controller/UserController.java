@@ -28,9 +28,9 @@ public class UserController {
         return userService.getPendingUserList(size, offset);
     }
 
-
     @PutMapping("/pending-users")
     public MsgResult setUserRole(@Validated @RequestBody List<PendingUserRoleDTO> pendingUserRoleDTOList){
         return userService.setUserRole(pendingUserRoleDTOList);
     }
+
 }
