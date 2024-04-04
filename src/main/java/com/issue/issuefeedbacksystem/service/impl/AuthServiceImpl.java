@@ -29,6 +29,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public CommonResult<?> login(UserLoginDTO userLoginDTO) {
         User user = userDAO.selectUserByPhone(userLoginDTO.getPhone());
+        if (Objects.isNull(user)){
+            return CommonResult.fail("当前账号已被删除");
+        }
         if (Objects.isNull(user.getRoleId())){
             return CommonResult.fail("当前账号尚未分配角色，请等待管理员处理");
         }

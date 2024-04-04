@@ -33,17 +33,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public MsgResult setUserRole(UserBatchUpdateRoleDTO userBatchUpdateRoleDTO) {
-        // 从列表中筛选出有效用户列表
-        List<Integer> realUidList = userDAO.selectEffectUidByUidList(userBatchUpdateRoleDTO.getUserIdList());
-        if (realUidList.isEmpty()) return MsgResult.fail("当前用户不存在或已删除");
-        // 获取无效人数,并将DTO的用户列表替换为有效用户列表
-        int invalid = userBatchUpdateRoleDTO.getUserIdList().size() - realUidList.size();
-        userBatchUpdateRoleDTO.setUserIdList(realUidList);
-
-        // 批量修改
         int row = userDAO.batchUpdateUserRole(userBatchUpdateRoleDTO);
-        return row > 0 ? MsgResult.success(invalid == 0 ? "角色分配成功" : "分配成功, 无效人数为:" + invalid +"人")
-                : MsgResult.fail("分配失败");
+        int invalid = userBatchUpdateRoleDTO.getUserIdList().size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "角色分配成功" : "分配成功, 无效分配" + invalid +"人")
+                : MsgResult.fail("分配失败, 无效分配" + invalid +"人");
     }
 
     @Override
@@ -64,16 +57,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public MsgResult batchUpdateUserDept(UserBatchUpdateDeptDTO userBatchUpdateDeptDTO) {
-        // 从列表中筛选出有效用户列表
-        List<Integer> realUidList = userDAO.selectTeaAndDeptLeaderListByUidList(userBatchUpdateDeptDTO.getUserIdList());
-        if (realUidList.isEmpty()) return MsgResult.fail("当前用户角色非老师或部门领导");
-        // 获取无效人数,并将DTO的用户列表替换为有效用户列表
-        int invalid = userBatchUpdateDeptDTO.getUserIdList().size() - realUidList.size();
-        userBatchUpdateDeptDTO.setUserIdList(realUidList);
-
-        // 批量修改
         int row = userDAO.batchUpdateUserDept(userBatchUpdateDeptDTO);
-        return row > 0 ? MsgResult.success(invalid == 0 ? "修改成功" : "修改成功, 无效人数为:" + invalid +"人")
-                : MsgResult.fail("修改失败");
+        int invalid = userBatchUpdateDeptDTO.getUserIdList().size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "分配成功" : "分配成功, 无效分配" + invalid +"人")
+                : MsgResult.fail("分配失败, 无效分配" + invalid +"人");
     }
 }

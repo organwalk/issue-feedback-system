@@ -15,4 +15,5 @@ public interface UserService {
     PagedResult<?> getUserList(Integer size, Integer offset);
     MsgResult updateUser(UserUpdateDTO userUpdateDTO);
     MsgResult batchUpdateUserDept(UserBatchUpdateDeptDTO userBatchUpdateDeptDTO);
+
 }

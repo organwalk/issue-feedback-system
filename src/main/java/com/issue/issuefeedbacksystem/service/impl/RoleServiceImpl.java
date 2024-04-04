@@ -40,6 +40,8 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public MsgResult deleteRole(List<Integer> roleIdList) {
         int row = roleDAO.batchDeleteRole(roleIdList);
-        return row > 0 ? MsgResult.success("删除角色成功") : MsgResult.fail("删除角色失败");
+        int invalid = roleIdList.size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "删除角色成功" : "删除角色成功, 无效删除角色"+ invalid + "个")
+                : MsgResult.fail("删除角色失败，无效删除角色" + invalid + "个");
     }
 }

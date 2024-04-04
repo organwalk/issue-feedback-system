@@ -17,7 +17,13 @@ public interface UserDAO {
     @Insert("insert into user(username, password_hash, phone) values (#{user.realName}, #{user.password}, #{user.phone})")
     int insertUser(@Param("user") UserRegistrationDTO userRegistrationDTO);
 
-    @Select("select user_id, username, password_hash, role_id, dept_id, phone from user where phone = #{phone}")
+    @Select("SELECT u.user_id, u.username, u.password_hash, " +
+            "CASE WHEN r.is_delete = 1 THEN NULL ELSE u.role_id END as role_id, " +
+            "u.dept_id, u.phone " +
+            "FROM user u " +
+            "LEFT JOIN role r ON u.role_id = r.role_id " +
+            "WHERE u.phone = #{phone} AND u.is_delete = 0")
+
     @Results({
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
@@ -36,7 +42,7 @@ public interface UserDAO {
     @Select("SELECT u.user_id, u.username, r.role_name AS role_name, u.phone  " +
             "FROM user u " +
             "LEFT JOIN role r ON u.role_id = r.role_id " +
-            "WHERE u.role_id IS NULL or r.is_delete = 1 limit #{size} offset #{offset}")
+            "WHERE u.is_delete = 0 and (u.role_id IS NULL or r.is_delete = 1) limit #{size} offset #{offset}")
     @Results({
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
@@ -45,17 +51,6 @@ public interface UserDAO {
     })
     List<PendingUserBO> selectPendingUserList(@Param("size") Integer size,
                                               @Param("offset") Integer offset);
-
-    @Select({
-            "<script>",
-            "select user_id from user where is_delete = 0 and ",
-            "user_id in ",
-            "<foreach collection='data' item='uid' open='(' close=')' separator=','>",
-            "#{uid}",
-            "</foreach>",
-            "</script>"
-    })
-    List<Integer> selectEffectUidByUidList(@Param("data")List<Integer> uidList);
     @Update({
             "<script>",
             "update user set role_id = #{data.roleId} where user_id in ",
@@ -105,19 +100,10 @@ public interface UserDAO {
     })
     int updateUser(@Param("user") UserUpdateDTO userUpdateDTO);
 
-    @Select({
-            "<script>",
-            "select user_id from user where is_delete = 0 and (role_id = 2 or role_id = 3) and ",
-            "user_id in ",
-            "<foreach collection='data' item='uid' open='(' close=')' separator=','>",
-            "#{uid}",
-            "</foreach>",
-            "</script>"
-    })
-    List<Integer> selectTeaAndDeptLeaderListByUidList(@Param("data")List<Integer> uidList);
     @Update({
             "<script>",
-            "update user set dept_id = #{data.deptId} where user_id in ",
+            "update user  set dept_id = #{data.deptId} ",
+            "where is_delete = 0 and (role_id = 2 or role_id = 3) and user_id in ",
             "<foreach collection='data.userIdList' item='uid' open='(' close=')' separator=','>",
             "#{uid}",
             "</foreach>",
