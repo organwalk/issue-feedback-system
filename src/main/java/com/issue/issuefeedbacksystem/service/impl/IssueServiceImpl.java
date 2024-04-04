@@ -43,7 +43,7 @@ public class IssueServiceImpl implements IssueService
     }
 
     @Override
-    public MsgResult Archive(Integer id)
+    public MsgResult archive(Integer id)
     {
         if (isArchived(id)) return MsgResult.Archived();
         Issue issue = Issue.builder()

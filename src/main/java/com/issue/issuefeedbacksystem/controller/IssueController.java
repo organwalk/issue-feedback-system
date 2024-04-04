@@ -24,4 +24,9 @@ public class IssueController
     {
         return issueService.reassign(issueReassignDTO);
     }
+    @PutMapping ("/archive/{id}")
+    public MsgResult archive(@PathVariable Integer id)
+    {
+        return issueService.archive(id);
+    }
 }

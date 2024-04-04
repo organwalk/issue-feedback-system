@@ -8,7 +8,7 @@ public interface IssueService
     MsgResult fallback(Integer id);
     MsgResult reassign(IssueReassignDTO issueReassignDTO);
 
-    MsgResult Archive(Integer id);
+    MsgResult archive(Integer id);
 
 
 }
