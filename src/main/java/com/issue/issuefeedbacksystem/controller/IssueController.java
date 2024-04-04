@@ -14,7 +14,7 @@ public class IssueController
     private final IssueService issueService;
 
     @PutMapping ("/fallback/{id}")
-    public MsgResult fallback(@PathVariable String id)
+    public MsgResult fallback(@PathVariable Integer id)
     {
         return issueService.fallback(id);
     }

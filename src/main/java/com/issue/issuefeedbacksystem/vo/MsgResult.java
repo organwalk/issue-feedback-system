@@ -23,6 +23,13 @@ public class MsgResult {
                 .build();
     }
 
+    public static MsgResult Archived()
+    {
+        return MsgResult.builder()
+                .code(Code.SUCCESS)
+                .msg("意见已归档,禁止操作")
+                .build();
+    }
     public static MsgResult notAuth(){
         return MsgResult.builder()
                 .code(Code.NOT_AUTH)
