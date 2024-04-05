@@ -19,13 +19,13 @@ allow-api-list:
   # 此处填写允许角色访问的API
   # 请填写实际API
   student:
-    - /api/student
-    - /api/book/read
+    - /api/issue-category
   teacher:
-    - /api/teacher
+    - /api/issue-category
   dept-leader:
-    - /api/dept
+    - /api/issue-category
   school-leader:
-    - /api/school
+    - /api/issue-category
   admin:
     - /api/system
+    - /api/issue-category

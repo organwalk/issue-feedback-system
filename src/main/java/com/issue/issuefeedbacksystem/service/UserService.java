@@ -15,5 +15,9 @@ public interface UserService {
     PagedResult<?> getUserList(Integer size, Integer offset);
     MsgResult updateUser(UserUpdateDTO userUpdateDTO);
     MsgResult batchUpdateUserDept(UserBatchUpdateDeptDTO userBatchUpdateDeptDTO);
+    MsgResult deleteUser(List<Integer> userIdList);
+    PagedResult<?> getUserListByRole(Integer size, Integer offset, Integer roleId);
+    PagedResult<?> getUserListByDept(Integer size, Integer offset, Integer deptId);
+    PagedResult<?> getUserListByPhone(Integer size, Integer offset, String phone);
 
 }

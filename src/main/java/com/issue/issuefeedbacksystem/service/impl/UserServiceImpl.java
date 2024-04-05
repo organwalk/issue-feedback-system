@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         List<UserBO> userList = userDAO.selectUserList(size, offset);
         return !userList.isEmpty()
                 ? PagedResult.success("成功获取用户列表", total, userList)
-                : PagedResult.fail("当前记录后结果为空");
+                : PagedResult.success("当前记录后结果为空", 0 ,null);
     }
 
     @Override
@@ -61,5 +61,43 @@ public class UserServiceImpl implements UserService {
         int invalid = userBatchUpdateDeptDTO.getUserIdList().size() - row;
         return row > 0 ? MsgResult.success(invalid == 0 ? "分配成功" : "分配成功, 无效分配" + invalid +"人")
                 : MsgResult.fail("分配失败, 无效分配" + invalid +"人");
+    }
+
+    @Override
+    public MsgResult deleteUser(List<Integer> userIdList) {
+        int row = userDAO.deleteUserByUidList(userIdList);
+        int invalid = userIdList.size() - row;
+        return row > 0 ? MsgResult.success(invalid == 0 ? "删除成功" : "删除成功, 无效删除" + invalid +"人")
+                : MsgResult.fail("删除失败, 无效删除" + invalid +"人");
+    }
+
+    @Override
+    public PagedResult<?> getUserListByRole(Integer size, Integer offset, Integer roleId) {
+        Integer total = userDAO.countUserSumByRole(roleId);
+        if (total == 0) return PagedResult.fail("用户列表为空");
+        List<UserBO> userList = userDAO.selectUserListByRole(size, offset, roleId);
+        return !userList.isEmpty()
+                ? PagedResult.success("成功获取用户列表", total, userList)
+                : PagedResult.success("当前记录后结果为空", 0 ,null);
+    }
+
+    @Override
+    public PagedResult<?> getUserListByDept(Integer size, Integer offset, Integer deptId) {
+        Integer total = userDAO.countUserSumByDept(deptId);
+        if (total == 0) return PagedResult.fail("用户列表为空");
+        List<UserBO> userList = userDAO.selectUserListByDept(size, offset, deptId);
+        return !userList.isEmpty()
+                ? PagedResult.success("成功获取用户列表", total, userList)
+                : PagedResult.success("当前记录后结果为空", 0 ,null);
+    }
+
+    @Override
+    public PagedResult<?> getUserListByPhone(Integer size, Integer offset, String phone) {
+        Integer total = userDAO.countUserSumByPhone(phone);
+        if (total == 0) return PagedResult.fail("用户列表为空");
+        List<UserBO> userList = userDAO.selectUserListByPhone(size, offset, phone);
+        return !userList.isEmpty()
+                ? PagedResult.success("成功获取用户列表", total, userList)
+                : PagedResult.success("当前记录后结果为空", 0 ,null);
     }
 }
