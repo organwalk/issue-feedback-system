@@ -41,6 +41,9 @@ public interface IssueCategoryDAO {
                                                         @Param("offset") Integer offset,
                                                         @Param("typeName") String typeName);
 
+    @Select("select type_id from issue_category where dept_id = #{deptId} and type_name = #{typeName}")
+    Integer selectIssueCategoryIdByDeptIdAndName(@Param("deptId") Integer deptId,
+                                                 @Param("typeName")String typeName);
     @Insert("insert into issue_category(type_name, dept_id) values (#{typeName}, #{deptId})")
     int addIssueCategory(@Param("typeName") String typeName, @Param("deptId") Integer deptId);
 

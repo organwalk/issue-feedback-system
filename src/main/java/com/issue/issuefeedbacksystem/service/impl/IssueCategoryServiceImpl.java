@@ -49,12 +49,16 @@ public class IssueCategoryServiceImpl implements IssueCategoryService {
 
     @Override
     public MsgResult addIssueCategory(String typeName, Integer deptId) {
+        Integer typeId = issueCategoryDAO.selectIssueCategoryIdByDeptIdAndName(deptId, typeName);
+        if (typeId != null) return MsgResult.fail("添加失败，当前部门下该问题分类已存在");
         int row = issueCategoryDAO.addIssueCategory(typeName, deptId);
         return row > 0 ? MsgResult.success("添加成功") : MsgResult.fail("添加失败");
     }
 
     @Override
     public MsgResult updateIssueCategory(String typeName, Integer deptId, Integer typeId) {
+        Integer typeIdMark = issueCategoryDAO.selectIssueCategoryIdByDeptIdAndName(deptId, typeName);
+        if (typeIdMark != null) return MsgResult.fail("修改失败，当前部门下该问题分类已存在");
         int row = issueCategoryDAO.updateIssueCategoryByTypeId(typeName, deptId, typeId);
         return row > 0 ? MsgResult.success("修改成功") : MsgResult.fail("修改失败");
     }
