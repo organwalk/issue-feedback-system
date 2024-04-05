@@ -2,6 +2,7 @@ package com.issue.issuefeedbacksystem.service;
 
 import com.issue.issuefeedbacksystem.dto.EvaluationDTO;
 import com.issue.issuefeedbacksystem.dto.IssueDTO;
+import com.issue.issuefeedbacksystem.dto.IssueReassignDTO;
 import com.issue.issuefeedbacksystem.dto.ReplyDTO;
 import com.issue.issuefeedbacksystem.vo.CommonResult;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Insert;
 
 public interface IssueService {
     MsgResult addIssue(IssueDTO issueDTO);
+
     MsgResult reply(ReplyDTO replyDTO);
 
     MsgResult evaluate(EvaluationDTO evaluationDTO);
@@ -17,4 +19,11 @@ public interface IssueService {
     CommonResult<?> getIssueDetails(Integer issueId);
 
     PagedResult<?> listByStatus(Integer issueStatus, Integer size, Integer offset);
+
+    MsgResult fallback(Integer id);
+
+    MsgResult reassign(IssueReassignDTO issueReassignDTO);
+
+    MsgResult archive(Integer id);
 }
+

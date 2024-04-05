@@ -2,13 +2,13 @@ package com.issue.issuefeedbacksystem.service.impl;
 
 import com.issue.issuefeedbacksystem.bo.IssueBO;
 import com.issue.issuefeedbacksystem.bo.IssueDetailsBO;
-import com.issue.issuefeedbacksystem.constant.IssueStatusConstant;
 import com.issue.issuefeedbacksystem.context.BaseContext;
 import com.issue.issuefeedbacksystem.dao.EvaluationDAO;
 import com.issue.issuefeedbacksystem.dao.IssueDAO;
 import com.issue.issuefeedbacksystem.dao.ReplyDAO;
 import com.issue.issuefeedbacksystem.dto.EvaluationDTO;
 import com.issue.issuefeedbacksystem.dto.IssueDTO;
+import com.issue.issuefeedbacksystem.dto.IssueReassignDTO;
 import com.issue.issuefeedbacksystem.dto.ReplyDTO;
 import com.issue.issuefeedbacksystem.entity.Evaluation;
 import com.issue.issuefeedbacksystem.entity.Issue;
@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+
+import com.issue.issuefeedbacksystem.constant.IssueStatusConstant;
 
 @Service
 @Transactional
@@ -73,6 +75,7 @@ public class IssueServiceImpl implements IssueService {
         }
         int row = evaluationDAO.insertEvaluation(evaluationDTO);
         row += issueDAO.updateIssueStatusById(issueId, IssueStatusConstant.ARCHIVED);
+        archive(issueId);
         return row > 0 ? MsgResult.success("意见评价成功") : MsgResult.fail("意见评价失败");
     }
 
@@ -94,5 +97,43 @@ public class IssueServiceImpl implements IssueService {
         return !issueList.isEmpty()
                 ? PagedResult.success("成功获取当前状态意见列表", total, issueList)
                 : PagedResult.fail("当前活动的状态意见列表为空");
+    }
+
+    @Override
+    public MsgResult fallback(Integer id)
+    {
+        if (isArchived(id)) return MsgResult.Archived();
+        Issue issue = Issue.builder()
+                .issueId(id)
+                .statusId(IssueStatusConstant.FALLBACK)
+                .build();
+        return issueDAO.updateIssue(issue) > 0 ? MsgResult.success("回退成功") : MsgResult.fail("回退失败");
+    }
+
+    @Override
+    public MsgResult reassign(IssueReassignDTO issueReassignDTO)
+    {
+        if (isArchived(issueReassignDTO.getIssueId())) return MsgResult.Archived();
+        Issue issue = new Issue();
+        BeanUtils.copyProperties(issueReassignDTO, issue);
+        return issueDAO.updateIssue(issue) > 0 ? MsgResult.success("分类重派成功") : MsgResult.fail("分类重派失败");
+    }
+
+    @Override
+    public MsgResult archive(Integer id)
+    {
+        if (isArchived(id)) return MsgResult.Archived();
+        Issue issue = Issue.builder()
+                .issueId(id)
+                .statusId(IssueStatusConstant.ARCHIVED)
+                .build();
+        return issueDAO.updateIssue(issue) > 0 ? MsgResult.success("归档成功") : MsgResult.fail("归档失败");
+    }
+
+
+    private boolean isArchived(Integer id)
+    {
+        Integer issueStatus = issueDAO.selectStatusById(id);
+        return Objects.equals(issueStatus,IssueStatusConstant.FALLBACK);
     }
 }

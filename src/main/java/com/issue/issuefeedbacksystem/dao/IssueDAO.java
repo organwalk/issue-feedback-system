@@ -31,4 +31,31 @@ public interface IssueDAO {
             "where i.status_id = #{issueStatus} " +
             "order by i.issue_id limit #{size} offset #{offset}")
     List<IssueBO> selectIssueListByStatus(@Param("issueStatus") Integer issueStatus, @Param("size") Integer size, @Param("offset") Integer offset);
+
+    @Update({
+            "<script>",
+            "UPDATE issues",
+            "<set>",
+            "<if test='userId != null'>",
+            "userId = #{userId},",
+            "</if>",
+            "<if test='typeId != null'>",
+            "typeId = #{typeId},",
+            "</if>",
+            "<if test='title != null'>",
+            "title = #{title},",
+            "</if>",
+            "<if test='desc != null'>",
+            "`desc` = #{desc},",
+            "</if>",
+            "<if test='statusId != null'>",
+            "statusId = #{statusId},",
+            "</if>",
+            "<if test='createDatetime != null'>",
+            "createDatetime = #{createDatetime}",
+            "</if>",
+            "</set> WHERE issueId = #{issueId}",
+            "</script>"
+    })
+    int updateIssue(Issue issue);
 }
