@@ -9,9 +9,9 @@ import java.util.List;
 
 @Mapper
 public interface IssueDAO {
-    @Insert("insert into issue (user_id,type_id,title,desc,status_id) " +
-            "values(#{userId},#{typeId},#{title},#{desc},#{statusId})")
-    int insertIssue(Issue issue);
+    @Insert("insert into issue (user_id,type_id,title,`desc`,status_id) " +
+            "values(#{issue.userId},#{issue.typeId},#{issue.title},#{issue.desc},#{issue.statusId})")
+    int insertIssue(@Param("issue") Issue issue);
 
     @Select("select status_id from issue where issue_id = #{issueId}")
     Integer selectStatusById(Integer issueId);
@@ -34,7 +34,7 @@ public interface IssueDAO {
 
     @Update({
             "<script>",
-            "UPDATE issues",
+            "UPDATE issue",
             "<set>",
             "<if test='userId != null'>",
             "userId = #{userId},",
