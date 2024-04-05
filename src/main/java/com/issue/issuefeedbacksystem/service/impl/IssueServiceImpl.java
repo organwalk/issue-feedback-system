@@ -134,6 +134,6 @@ public class IssueServiceImpl implements IssueService {
     private boolean isArchived(Integer id)
     {
         Integer issueStatus = issueDAO.selectStatusById(id);
-        return Objects.equals(issueStatus,IssueStatusConstant.FALLBACK);
+        return Objects.equals(issueStatus,IssueStatusConstant.ARCHIVED);
     }
 }
