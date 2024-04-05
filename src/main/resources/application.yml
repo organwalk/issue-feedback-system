@@ -20,12 +20,26 @@ allow-api-list:
   # 请填写实际API
   student:
     - /api/issue-category
+    - /api/issue/one
+    - /api/issue/evaluate
   teacher:
     - /api/issue-category
+    - /api/issue/one
+    - /api/issue/reply
+    - /api/issue/evaluate
   dept-leader:
     - /api/issue-category
+    - /api/issue/one
+    - /api/issue/reply
+    - /api/issue/evaluate
   school-leader:
     - /api/issue-category
+    - /api/issue/one
+    - /api/issue/reply
+    - /api/issue/evaluate
   admin:
     - /api/system
     - /api/issue-category
+    - /api/issue/one
+    - /api/issue/reply
+    - /api/issue/evaluate

@@ -57,6 +57,7 @@ public class IssueServiceImpl implements IssueService {
         Reply reply = new Reply();
         BeanUtils.copyProperties(replyDTO, reply);
         reply.setUserId(BaseContext.getCurrentId());
+        System.out.println(reply);
         int row = replyDAO.insertReply(reply);
         if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY)) {
             row += issueDAO.updateIssueStatusById(issueId, IssueStatusConstant.REPLIED);
