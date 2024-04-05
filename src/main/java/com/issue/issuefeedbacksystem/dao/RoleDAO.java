@@ -15,6 +15,8 @@ public interface RoleDAO {
     })
     List<RoleBO> selectRoleListNotDelete();
 
+    @Select("select role_id from role where role_name = #{roleName}")
+    Integer selectRoleIdByRoleName(String roleName);
     @Insert("insert into role(role_name) values (#{roleName})")
     int insertRoleName(String roleName);
 

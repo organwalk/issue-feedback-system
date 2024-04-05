@@ -27,12 +27,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public MsgResult addRole(String roleName) {
+        Integer roleId = roleDAO.selectRoleIdByRoleName(roleName);
+        if (roleId != null) return MsgResult.fail("已存在该角色，无需添加");
         int row = roleDAO.insertRoleName(roleName);
         return row > 0 ? MsgResult.success("添加角色成功") : MsgResult.fail("添加角色失败");
     }
 
     @Override
     public MsgResult updateRole(String roleName, Integer roleId) {
+        Integer roleIdMark = roleDAO.selectRoleIdByRoleName(roleName);
+        if (roleIdMark != null) return MsgResult.fail("修改失败，角色名称已存在");
         int row = roleDAO.updateRoleName(roleName, roleId);
         return row > 0 ? MsgResult.success("修改角色成功") : MsgResult.fail("修改角色失败");
     }
