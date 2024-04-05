@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class IssueController {
     private final IssueService issueService;
 
-    @PostMapping("/one")
+    @PostMapping("/save")
     public MsgResult addIssue(@RequestBody IssueDTO issueDTO) {
         return issueService.addIssue(issueDTO);
     }

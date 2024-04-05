@@ -8,18 +8,24 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface IssueDAO {
+public interface IssueDAO
+{
     @Insert("insert into issue (user_id,type_id,title,`desc`,status_id) " +
-            "values(#{issue.userId},#{issue.typeId},#{issue.title},#{issue.desc},#{issue.statusId})")
-    int insertIssue(@Param("issue") Issue issue);
+            "values(#{userId},#{typeId},#{title},#{desc},#{statusId})")
+    int insertIssue(Issue issue);
 
     @Select("select status_id from issue where issue_id = #{issueId}")
     Integer selectStatusById(Integer issueId);
 
+    @Select("select user_id from issue where issue_id = #{issueId}")
+    Integer selectUserId(Integer issueId);
+
     @Update("update issue set status_id = #{status} where issue_id = #{issueId}")
     int updateIssueStatusById(@Param("issueId") Integer issueId, @Param("status") Integer status);
 
-    @Select("select issue.*,ic.type_name,i.status_name from issue left join issue_category ic on ic.type_id = issue.type_id left join issue_status i on i.status_id = issue.status_id where issue_id = #{issueId}")
+    @Select("select issue.title,issue.`desc`,issue.type_id,ic.type_name,issue.status_id,i.status_name " +
+            "from issue left join issue_category ic on ic.type_id = issue.type_id " +
+            "left join issue_status i on i.status_id = issue.status_id where issue_id = #{issueId}")
     IssueDetailsBO selectById(Integer issueId);
 
     @Select("select count(issue_id) from issue where status_id = #{issueStatus}")
@@ -37,10 +43,10 @@ public interface IssueDAO {
             "UPDATE issue",
             "<set>",
             "<if test='userId != null'>",
-            "userId = #{userId},",
+            "user_id = #{userId},",
             "</if>",
             "<if test='typeId != null'>",
-            "typeId = #{typeId},",
+            "type_id = #{typeId},",
             "</if>",
             "<if test='title != null'>",
             "title = #{title},",
@@ -49,12 +55,12 @@ public interface IssueDAO {
             "`desc` = #{desc},",
             "</if>",
             "<if test='statusId != null'>",
-            "statusId = #{statusId},",
+            "status_id = #{statusId},",
             "</if>",
             "<if test='createDatetime != null'>",
-            "createDatetime = #{createDatetime}",
+            "create_datetime = #{createDatetime}",
             "</if>",
-            "</set> WHERE issueId = #{issueId}",
+            "</set> WHERE issue_id = #{issueId}",
             "</script>"
     })
     int updateIssue(Issue issue);

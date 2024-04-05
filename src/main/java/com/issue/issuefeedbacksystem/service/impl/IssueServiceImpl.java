@@ -15,6 +15,7 @@ import com.issue.issuefeedbacksystem.entity.Issue;
 import com.issue.issuefeedbacksystem.entity.Reply;
 import com.issue.issuefeedbacksystem.service.IssueService;
 import com.issue.issuefeedbacksystem.vo.CommonResult;
+import com.issue.issuefeedbacksystem.vo.IssueDetailsVO;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
 import com.issue.issuefeedbacksystem.vo.PagedResult;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +31,15 @@ import com.issue.issuefeedbacksystem.constant.IssueStatusConstant;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class IssueServiceImpl implements IssueService {
+public class IssueServiceImpl implements IssueService
+{
     private final IssueDAO issueDAO;
     private final ReplyDAO replyDAO;
     private final EvaluationDAO evaluationDAO;
 
     @Override
-    public MsgResult addIssue(IssueDTO issueDTO) {
+    public MsgResult addIssue(IssueDTO issueDTO)
+    {
         Issue issue = new Issue();
         BeanUtils.copyProperties(issueDTO, issue);
         Integer userId = BaseContext.getCurrentId();
@@ -48,10 +51,12 @@ public class IssueServiceImpl implements IssueService {
 
 
     @Override
-    public MsgResult reply(ReplyDTO replyDTO) {
+    public MsgResult reply(ReplyDTO replyDTO)
+    {
         Integer issueId = replyDTO.getIssueId();
         Integer issueStatus = issueDAO.selectStatusById(issueId);
-        if (issueStatus == 4) {
+        if (issueStatus == 4)
+        {
             return MsgResult.success("已归档的意见无法进行回复");
         }
         Reply reply = new Reply();
@@ -59,39 +64,52 @@ public class IssueServiceImpl implements IssueService {
         reply.setUserId(BaseContext.getCurrentId());
         System.out.println(reply);
         int row = replyDAO.insertReply(reply);
-        if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY)) {
+        if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY))
+        {
             row += issueDAO.updateIssueStatusById(issueId, IssueStatusConstant.REPLIED);
         }
         return row > 0 ? MsgResult.success("意见回复成功") : MsgResult.fail("意见回复失败");
     }
 
     @Override
-    public MsgResult evaluate(EvaluationDTO evaluationDTO) {
+    public MsgResult evaluate(EvaluationDTO evaluationDTO)
+    {
         Integer issueId = evaluationDTO.getIssueId();
+        if (!Objects.equals(issueDAO.selectUserId(issueId), BaseContext.getCurrentId()))
+        {
+            return MsgResult.fail("只有意见的发起者才能评价");
+        }
         Integer issueStatus = issueDAO.selectStatusById(issueId);
-        if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY)) {
+        if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY))
+        {
             return MsgResult.success("未回复的意见不能进行评价");
-        } else if (Objects.equals(issueStatus, IssueStatusConstant.ARCHIVED)) {
+        }
+        else if (Objects.equals(issueStatus, IssueStatusConstant.ARCHIVED))
+        {
             return MsgResult.success("已归档的意见无法进行评价");
         }
         int row = evaluationDAO.insertEvaluation(evaluationDTO);
-        row += issueDAO.updateIssueStatusById(issueId, IssueStatusConstant.ARCHIVED);
+        //对已评价的意见进行归档
         archive(issueId);
         return row > 0 ? MsgResult.success("意见评价成功") : MsgResult.fail("意见评价失败");
     }
 
     @Override
-    public CommonResult<?> getIssueDetails(Integer issueId) {
+    public CommonResult<?> getIssueDetails(Integer issueId)
+    {
+        IssueDetailsVO issueDetailsVO = new IssueDetailsVO();
         IssueDetailsBO issueDetailsBO = issueDAO.selectById(issueId);
         List<Reply> replies = replyDAO.selectReplyByIssueId(issueId);
         Evaluation evaluation = evaluationDAO.selectByIssueId(issueId);
-        issueDetailsBO.setReplies(replies);
-        issueDetailsBO.setEvaluation(evaluation);
+        BeanUtils.copyProperties(issueDetailsBO, issueDetailsVO);
+        issueDetailsVO.setReplies(replies);
+        issueDetailsVO.setEvaluation(evaluation);
         return CommonResult.success("查看意见成功", issueDetailsBO);
     }
 
     @Override
-    public PagedResult<?> listByStatus(Integer issueStatus, Integer size, Integer offset) {
+    public PagedResult<?> listByStatus(Integer issueStatus, Integer size, Integer offset)
+    {
         Integer total = issueDAO.countNumsByStatus(issueStatus);
         if (total == 0) return PagedResult.fail("当前状态的意见列表为空");
         List<IssueBO> issueList = issueDAO.selectIssueListByStatus(issueStatus, size, offset);
@@ -135,6 +153,6 @@ public class IssueServiceImpl implements IssueService {
     private boolean isArchived(Integer id)
     {
         Integer issueStatus = issueDAO.selectStatusById(id);
-        return Objects.equals(issueStatus,IssueStatusConstant.ARCHIVED);
+        return Objects.equals(issueStatus, IssueStatusConstant.ARCHIVED);
     }
 }
