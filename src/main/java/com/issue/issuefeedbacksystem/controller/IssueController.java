@@ -23,23 +23,23 @@ import org.springframework.web.bind.annotation.*;
 public class IssueController {
     private final IssueService issueService;
 
-    @PostMapping
-    private MsgResult addIssue(@RequestBody IssueDTO issueDTO) {
+    @PostMapping("/save")
+    public MsgResult addIssue(@RequestBody IssueDTO issueDTO) {
         return issueService.addIssue(issueDTO);
     }
 
     @PostMapping("/reply")
-    private MsgResult reply(@Validated @RequestBody ReplyDTO replyDTO) {
+    public MsgResult reply(@Validated @RequestBody ReplyDTO replyDTO) {
         return issueService.reply(replyDTO);
     }
 
     @PostMapping("/evaluate")
-    private MsgResult evaluate(@Validated @RequestBody EvaluationDTO evaluationDTO) {
+    public MsgResult evaluate(@Validated @RequestBody EvaluationDTO evaluationDTO) {
         return issueService.evaluate(evaluationDTO);
     }
 
     @GetMapping("details/{issueId}")
-    private CommonResult<?> getIssueDetails(@Valid
+    public CommonResult<?> getIssueDetails(@Valid
                                             @PathVariable("issueId")
                                             @NotNull(message = "意见id不能为空")
                                             Integer issueId) {
@@ -47,7 +47,7 @@ public class IssueController {
     }
 
     @GetMapping("list/status")
-    private PagedResult<?> listByStatus(@Valid
+    public PagedResult<?> listByStatus(@Valid
                                         @Min(value = 1, message = "状态值不能小于1")
                                         @Max(value = 4, message = "状态值不能大于4")
                                         Integer issueStatus,

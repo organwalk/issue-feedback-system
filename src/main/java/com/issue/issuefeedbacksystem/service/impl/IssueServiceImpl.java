@@ -15,6 +15,7 @@ import com.issue.issuefeedbacksystem.entity.Issue;
 import com.issue.issuefeedbacksystem.entity.Reply;
 import com.issue.issuefeedbacksystem.service.IssueService;
 import com.issue.issuefeedbacksystem.vo.CommonResult;
+import com.issue.issuefeedbacksystem.vo.IssueDetailVO;
 import com.issue.issuefeedbacksystem.vo.MsgResult;
 import com.issue.issuefeedbacksystem.vo.PagedResult;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,9 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public MsgResult evaluate(EvaluationDTO evaluationDTO) {
         Integer issueId = evaluationDTO.getIssueId();
+        if (!Objects.equals(BaseContext.getCurrentId(), issueDAO.selectUserId(issueId))) {
+            return MsgResult.fail("用户只能对自己提出的意见进行评价");
+        }
         Integer issueStatus = issueDAO.selectStatusById(issueId);
         if (Objects.equals(issueStatus, IssueStatusConstant.WAIT_FOR_REPLY)) {
             return MsgResult.success("未回复的意见不能进行评价");
@@ -74,7 +78,6 @@ public class IssueServiceImpl implements IssueService {
             return MsgResult.success("已归档的意见无法进行评价");
         }
         int row = evaluationDAO.insertEvaluation(evaluationDTO);
-        row += issueDAO.updateIssueStatusById(issueId, IssueStatusConstant.ARCHIVED);
         archive(issueId);
         return row > 0 ? MsgResult.success("意见评价成功") : MsgResult.fail("意见评价失败");
     }
@@ -84,9 +87,11 @@ public class IssueServiceImpl implements IssueService {
         IssueDetailsBO issueDetailsBO = issueDAO.selectById(issueId);
         List<Reply> replies = replyDAO.selectReplyByIssueId(issueId);
         Evaluation evaluation = evaluationDAO.selectByIssueId(issueId);
-        issueDetailsBO.setReplies(replies);
-        issueDetailsBO.setEvaluation(evaluation);
-        return CommonResult.success("查看意见成功", issueDetailsBO);
+        IssueDetailVO issueDetailVO = new IssueDetailVO();
+        BeanUtils.copyProperties(issueDetailsBO, issueDetailVO);
+        issueDetailVO.setReplies(replies);
+        issueDetailVO.setEvaluation(evaluation);
+        return CommonResult.success("查看意见成功", issueDetailVO);
     }
 
     @Override
@@ -100,8 +105,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public MsgResult fallback(Integer id)
-    {
+    public MsgResult fallback(Integer id) {
         if (isArchived(id)) return MsgResult.Archived();
         Issue issue = Issue.builder()
                 .issueId(id)
@@ -111,8 +115,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public MsgResult reassign(IssueReassignDTO issueReassignDTO)
-    {
+    public MsgResult reassign(IssueReassignDTO issueReassignDTO) {
         if (isArchived(issueReassignDTO.getIssueId())) return MsgResult.Archived();
         Issue issue = new Issue();
         BeanUtils.copyProperties(issueReassignDTO, issue);
@@ -120,8 +123,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public MsgResult archive(Integer id)
-    {
+    public MsgResult archive(Integer id) {
         if (isArchived(id)) return MsgResult.Archived();
         Issue issue = Issue.builder()
                 .issueId(id)
@@ -131,9 +133,8 @@ public class IssueServiceImpl implements IssueService {
     }
 
 
-    private boolean isArchived(Integer id)
-    {
+    private boolean isArchived(Integer id) {
         Integer issueStatus = issueDAO.selectStatusById(id);
-        return Objects.equals(issueStatus,IssueStatusConstant.FALLBACK);
+        return Objects.equals(issueStatus, IssueStatusConstant.ARCHIVED);
     }
 }
